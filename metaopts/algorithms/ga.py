@@ -1,12 +1,20 @@
 import tensorflow as tf
-from ..utilities.fitness import update_fitness_values
-from ..utilities.population import create_population, sort_population
+from metaopts import create_population, sort_population, update_population_fitness
 
 
-def ga(model_weights, model_fitness_fn, generation_limit, fitness_limit, population_size, elite_size, crossover_rate, mutation_rate, transfer_learning=False):
+def ga(
+        model_weights,
+        model_fitness_fn,
+        generation_limit,
+        fitness_limit,
+        population_size,
+        elite_size,
+        transfer_learning=False,
+        crossover_rate=0.2,
+        mutation_rate=0.2
+    ):
     """
     Implementation of a Genetic Algorithm.
-    The algorithm uses elitism, roulette wheel selection, multi-point crossover and gaussian mutation.
 
     Args:
         model_weights: `list` of `tf.Variable` - List of model weights.
@@ -15,8 +23,13 @@ def ga(model_weights, model_fitness_fn, generation_limit, fitness_limit, populat
         fitness_limit: `float` - Fitness value threshold.
         population_size: `int` - Number of individuals in the population.
         elite_size: `int` - Number of elite individuals.
+        transfer_learning: `bool` - Whether to use transfer learning.
         crossover_rate: `float` - Crossover probability.
         mutation_rate: `float` - Mutation probability.
+    
+    Notes:
+
+    * The algorithm uses elitism, roulette wheel selection, multi-point crossover and gaussian mutation.
     """
 
     @tf.function
@@ -100,7 +113,7 @@ def ga(model_weights, model_fitness_fn, generation_limit, fitness_limit, populat
     parents = tf.Variable(tf.zeros((2, selection_size), dtype=tf.int32))
     
     # Update fitness values and sort population
-    update_fitness_values(model_weights, model_fitness_fn, population, population_size, fitness_values)
+    update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size)
     sort_population(population, fitness_values)
 
     # Print debug information
@@ -121,11 +134,11 @@ def ga(model_weights, model_fitness_fn, generation_limit, fitness_limit, populat
         gaussian_mutation()
 
         # Update fitness values and sort population
-        update_fitness_values(model_weights, model_fitness_fn, population, population_size, fitness_values)
+        update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size)
         sort_population(population, fitness_values)
 
         # Print debug information
-        print('Generation: {0}\tBest fitness: {1}'.format(gen, fitness_values[0].numpy()), end='\r')
+        print('Generation: {0} Best fitness: {1}'.format(gen, fitness_values[0].numpy()), end='\r')
 
     # Print debug information
     print('\nGenetic Algorithm finished.')
