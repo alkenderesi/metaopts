@@ -140,7 +140,7 @@ def ga(
         sort_population(population, fitness_values)
 
         # Print training information
-        print('Generation: {0} Best fitness: {1}'.format(gen, fitness_values[0].numpy()), end='\r')
+        print('Generation: {0} Best fitness: {1}'.format(int(gen), float(fitness_values[0])), end='\r')
 
     # Print debug information
     print('\nGenetic Algorithm finished.')

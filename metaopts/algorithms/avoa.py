@@ -61,15 +61,17 @@ def avoa(
     @tf.function
     def eq_1():
         print('Tracing eq_1...')
-        chosen = tf.cast(tf.random.uniform((), 0, 1) < L1, tf.int32)
+        reversed = tf.reduce_sum(L) / L
+        logits = tf.math.log(reversed)
+        selected = tf.random.categorical([logits], 1, dtype=tf.int32)
         for r, bv in zip(R, best_vultures):
-            r.assign(bv[chosen])
+            r.assign(bv[selected[0][0]])
 
     @tf.function
     def eq_3():
         print('Tracing eq_3...')
         h = tf.random.uniform((), -2, 2)
-        return h * (tf.pow(tf.sin(math.pi/2*gen/T), w) + tf.cos(math.pi/2*gen/T) - 1)
+        return h * (tf.pow(tf.sin(math.pi/2 * gen/T), w) + tf.cos(math.pi/2 * gen/T) - 1)
 
     @tf.function
     def eq_4():
@@ -169,8 +171,7 @@ def avoa(
     fitness_values = tf.Variable(tf.zeros(N, dtype=tf.float32))
 
     # Initialize other pseudo-code variables
-    L1 = tf.constant(L1, dtype=tf.float32)
-    L2 = tf.constant(L2, dtype=tf.float32)
+    L = tf.constant([L1, L2], dtype=tf.float32)
     w = tf.constant(w, dtype=tf.float32)
     P1 = tf.constant(P1, dtype=tf.float32)
     P2 = tf.constant(P2, dtype=tf.float32)
@@ -196,7 +197,7 @@ def avoa(
     print('Starting African Vultures Optimization Algorithm.')
 
     # while (stopping condition is not met) do
-    while gen < T:
+    while gen <= T:
 
         # Calculate the fitness values of Vulture
         update_population_fitness(model_weights, model_fitness_fn, fitness_values, P, N)
@@ -209,7 +210,7 @@ def avoa(
         best_fitness.assign(tf.reduce_min(fitness_values))
 
         # Print training information
-        print('Generation: {0} Best fitness: {1}'.format(int(gen.numpy()), best_fitness.numpy()), end='\r')
+        print('Generation: {0} Best fitness: {1}'.format(int(gen), float(best_fitness)), end='\r')
         
         # Additional stopping condition
         if best_fitness < fitness_limit:
@@ -277,9 +278,12 @@ def avoa(
     # Print debug information
     print('\nAfrican Vultures Optimization Algorithm finished.')
 
+    # Update population fitness
+    update_population_fitness(model_weights, model_fitness_fn, fitness_values, P, N)
+
     # Apply best solution to the model
-    for mv, bv in zip(model_weights, best_vultures):
-        mv.assign(bv[0])
+    for mv, p in zip(model_weights, P):
+        mv.assign(p[tf.argmin(fitness_values)])
 
     # Print debug information
     print('Best solution applied to model.')
