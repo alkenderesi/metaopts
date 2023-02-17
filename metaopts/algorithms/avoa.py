@@ -54,8 +54,7 @@ def avoa(
     @tf.function
     def update_best_vultures():
         print('Tracing update_best_vultures...')
-        unique_values, unique_indices = tf.unique(fitness_values)
-        best_indices = tf.gather(unique_indices, tf.argsort(unique_values)[:2])
+        best_indices = tf.gather(tf.range(N), tf.argsort(fitness_values)[:2])
         for bv, p in zip(best_vultures, P):
             bv.assign(tf.gather(p, best_indices))
 
@@ -105,6 +104,7 @@ def avoa(
     @tf.function
     def eq_10():
         print('Tracing eq_10...')
+        eq_7()
         rand_4 = tf.random.uniform((), 0, 1)
         for r, p, d in zip(R, P, D):
             dt = r - p[i] # eq_11
@@ -208,7 +208,7 @@ def avoa(
         # Update best fitness
         best_fitness.assign(tf.reduce_min(fitness_values))
 
-        # Print debug information
+        # Print training information
         print('Generation: {0} Best fitness: {1}'.format(int(gen.numpy()), best_fitness.numpy()), end='\r')
         
         # Additional stopping condition

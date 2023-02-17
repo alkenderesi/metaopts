@@ -49,7 +49,7 @@ def create_fitness_function(model, loss, x, y, batch_size):
     return fitness_fn
 
 
-def update_individual_fitness(model_weights, model_fitness_fn, fitness_values, population, individual_index):
+def update_individual_fitness(model_weights, model_fitness_fn, fitness_values, population, individual_index, deviation=0.1):
     """
     Updates the fitness value of an individual in the population.
 
@@ -59,6 +59,7 @@ def update_individual_fitness(model_weights, model_fitness_fn, fitness_values, p
         fitness_values: `tf.Variable` - Fitness values of the population.
         population: `list` of `tf.Variable` - List of population weights.
         individual_index: `int` - Index of the individual in the population.
+        deviation: `float` - Standard deviation of the normal distribution used to generate random weights.
     
     Notes:
 
@@ -89,7 +90,7 @@ def update_individual_fitness(model_weights, model_fitness_fn, fitness_values, p
         for mw, p in zip(model_weights, population):
 
             # Assign random weights to individual
-            p[individual_index].assign(tf.random.normal(p[individual_index].shape, 0, 0.1))
+            p[individual_index].assign(tf.random.normal(p[individual_index].shape, 0, deviation))
 
             # Assign test weights to model
             mw.assign(p[individual_index])
@@ -98,7 +99,7 @@ def update_individual_fitness(model_weights, model_fitness_fn, fitness_values, p
         fitness_values[individual_index].assign(model_fitness_fn())
 
 
-def update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size):
+def update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size, deviation=0.1):
     """
     Updates the fitness value of each individual in the population.
 
@@ -108,6 +109,7 @@ def update_population_fitness(model_weights, model_fitness_fn, fitness_values, p
         fitness_values: `tf.Variable` - Fitness values of the population.
         population: `list` of `tf.Variable` - List of population weights.
         population_size: `int` - Number of individuals in the population.
+        deviation: `float` - Standard deviation of the normal distribution used to generate random weights.
     
     Notes:
 
@@ -123,7 +125,7 @@ def update_population_fitness(model_weights, model_fitness_fn, fitness_values, p
     for i in tf.range(population_size):
 
         # Update individual fitness
-        update_individual_fitness(model_weights, model_fitness_fn, fitness_values, population, i)
+        update_individual_fitness(model_weights, model_fitness_fn, fitness_values, population, i, deviation)
 
 
 update_individual_fitness = tf.function(update_individual_fitness)

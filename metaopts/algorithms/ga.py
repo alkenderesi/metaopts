@@ -10,6 +10,7 @@ def ga(
         population_size,
         elite_size,
         transfer_learning=False,
+        learning_rate=0.1,
         crossover_rate=0.2,
         mutation_rate=0.2
     ):
@@ -24,6 +25,7 @@ def ga(
         population_size: `int` - Number of individuals in the population.
         elite_size: `int` - Number of elite individuals.
         transfer_learning: `bool` - Whether to use transfer learning.
+        learning_rate: `float` - Learning rate.
         crossover_rate: `float` - Crossover probability.
         mutation_rate: `float` - Mutation probability.
     
@@ -94,7 +96,7 @@ def ga(
             mutation_points = tf.random.uniform(mutation_shape, 0, 1) < mutation_rate
 
             # Generate mutation values
-            mutation_values = tf.random.normal(mutation_shape, 1, 0.1)
+            mutation_values = tf.random.normal(mutation_shape, 1, learning_rate)
 
             # Assign mutated weights to population
             p[elite_size:].assign(tf.where(mutation_points, mutation_values * p[elite_size:], p[elite_size:]))
@@ -137,7 +139,7 @@ def ga(
         update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size)
         sort_population(population, fitness_values)
 
-        # Print debug information
+        # Print training information
         print('Generation: {0} Best fitness: {1}'.format(gen, fitness_values[0].numpy()), end='\r')
 
     # Print debug information
