@@ -2,6 +2,7 @@ from .utilities.fitness import create_fitness_function, update_individual_fitnes
 from .utilities.population import create_population, sort_population
 from .algorithms.ga import ga
 from .algorithms.avoa import avoa
+from .algorithms.mvo import mvo
 
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     'sort_population',
     'ga',
     'avoa',
+    'mvo',
 ]

@@ -54,7 +54,7 @@ def avoa(
     @tf.function
     def update_best_vultures():
         print('Tracing update_best_vultures...')
-        best_indices = tf.gather(tf.range(N), tf.argsort(fitness_values)[:2])
+        best_indices = tf.argsort(fitness_values)[:2]
         for bv, p in zip(best_vultures, P):
             bv.assign(tf.gather(p, best_indices))
 
