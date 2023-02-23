@@ -4,6 +4,7 @@ from .algorithms.ga import ga
 from .algorithms.avoa import avoa
 from .algorithms.mvo import mvo
 from .algorithms.dgo import dgo
+from .algorithms.stbo import stbo
 
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     'avoa',
     'mvo',
     'dgo',
+    'stbo',
 ]
