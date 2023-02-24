@@ -1,21 +1,18 @@
-from .utilities.fitness import create_fitness_function, update_individual_fitness, update_population_fitness
-from .utilities.population import create_population, sort_population
-from .algorithms.ga import ga
+from . import utilities
+from . import algorithms
+from .utilities.fitness import create_fitness_function
 from .algorithms.avoa import avoa
-from .algorithms.mvo import mvo
 from .algorithms.dgo import dgo
+from .algorithms.ga import ga
+from .algorithms.mvo import mvo
 from .algorithms.stbo import stbo
 
 
 __all__ = [
     'create_fitness_function',
-    'update_individual_fitness',
-    'update_population_fitness',
-    'create_population',
-    'sort_population',
-    'ga',
     'avoa',
-    'mvo',
     'dgo',
+    'ga',
+    'mvo',
     'stbo',
 ]

@@ -1,5 +1,5 @@
 import tensorflow as tf
-from metaopts import create_population, update_population_fitness
+from metaopts.utilities import create_population, update_population_fitness
 
 
 def dgo(
