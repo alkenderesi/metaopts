@@ -1,5 +1,5 @@
 import tensorflow as tf
-from metaopts.utilities import create_population, update_population_fitness
+from metaopts.utilities import *
 
 
 def stbo(
@@ -46,7 +46,7 @@ def stbo(
 
     @tf.function
     def eq_4(index):
-        print('Tracing eq_4...')
+        print_function_trace('eq_4')
         CSI = tf.cast(tf.reshape(tf.where(F < F[index]), (-1,)), dtype=tf.int32)
         if tf.equal(tf.size(CSI), 0):
             return tf.expand_dims(index, 0)
@@ -54,7 +54,7 @@ def stbo(
     
     @tf.function
     def eq_5():
-        print('Tracing eq_5...')
+        print_function_trace('eq_5')
         for x, xp in zip(X, XP):
             shape = tf.shape(x)
             r = tf.random.uniform(shape, 0, 1, dtype=tf.float32)
@@ -63,7 +63,7 @@ def stbo(
 
     @tf.function
     def eq_7_and_8():
-        print('Tracing eq_7_and_8...')
+        print_function_trace('eq_7_and_8')
         for x, xp in zip(X, XP):
             shape = tf.shape(x)
             m = tf.cast(tf.size(x), dtype=tf.float32)
@@ -76,14 +76,14 @@ def stbo(
     
     @tf.function
     def eq_10():
-        print('Tracing eq_10...')
+        print_function_trace('eq_10')
         for x, xp in zip(X, XP):
             r = tf.random.uniform(x.shape, 0, 1, dtype=tf.float32)
             xp.assign(tf.clip_by_value(x + (lb + r * (ub - lb)) / gen, lb, ub))
 
     @tf.function
     def update_improved_positions():
-        print('Tracing update_improved_positions...')
+        print_function_trace('update_improved_positions')
         update_population_fitness(model_weights, model_fitness_fn, F, X, N)
         update_population_fitness(model_weights, model_fitness_fn, FP, XP, N)
         improved_positions = FP < F
@@ -94,7 +94,7 @@ def stbo(
 
     @tf.function
     def update_SI():
-        print('Tracing update_SI...')
+        print_function_trace('update_SI')
         for i in tf.range(N):
             CSI = eq_4(i)
             candidate_count = tf.size(CSI)
@@ -120,7 +120,8 @@ def stbo(
     gen = tf.Variable(0, dtype=tf.float32)
 
     # Print debug information
-    print('Starting Sewing Training-Based Optimization.')
+    algo_name = 'Sewing Training-Based Optimization'
+    print_algo_start(algo_name)
 
     # For t = 1 to T
     while best_fitness > fitness_limit and gen <= T:
@@ -155,13 +156,13 @@ def stbo(
         best_fitness.assign(tf.reduce_min(F))
 
         # Print training information
-        print('Generation: {0} Best fitness: {1}'.format(int(gen), float(best_fitness)), end='\r')
+        print_training_status(int(gen), float(best_fitness))
 
         gen.assign_add(1)
 
 
     # Print debug information
-    print('\nSewing Training-Based Optimization finished.')
+    print_algo_end(algo_name)
 
     # Apply best solution to the model
     for mw, x in zip(model_weights, X):

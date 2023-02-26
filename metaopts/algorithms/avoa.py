@@ -1,6 +1,6 @@
 import tensorflow as tf
 import math
-from metaopts.utilities import create_population, update_population_fitness
+from metaopts.utilities import *
 
 
 def avoa(
@@ -53,14 +53,14 @@ def avoa(
 
     @tf.function
     def update_best_vultures():
-        print('Tracing update_best_vultures...')
+        print_function_trace('update_best_vultures')
         best_indices = tf.argsort(fitness_values)[:2]
         for bv, p in zip(best_vultures, P):
             bv.assign(tf.gather(p, best_indices))
 
     @tf.function
     def eq_1():
-        print('Tracing eq_1...')
+        print_function_trace('eq_1')
         reversed = tf.reduce_sum(L) / L
         logits = tf.math.log(reversed)
         selected = tf.random.categorical([logits], 1, dtype=tf.int32)
@@ -69,13 +69,13 @@ def avoa(
 
     @tf.function
     def eq_3():
-        print('Tracing eq_3...')
+        print_function_trace('eq_3')
         h = tf.random.uniform((), -2, 2)
         return h * (tf.pow(tf.sin(math.pi/2 * gen/T), w) + tf.cos(math.pi/2 * gen/T) - 1)
 
     @tf.function
     def eq_4():
-        print('Tracing eq_4...')
+        print_function_trace('eq_4')
         rand_1 = tf.random.uniform((), 0, 1)
         z = tf.random.uniform((), -1, 1)
         t = eq_3()
@@ -83,21 +83,21 @@ def avoa(
 
     @tf.function
     def eq_6():
-        print('Tracing eq_6...')
+        print_function_trace('eq_6')
         eq_7()
         for p, r, d in zip(P, R, D):
             p[i].assign(r - d * F)
 
     @tf.function
     def eq_7():
-        print('Tracing eq_7...')
+        print_function_trace('eq_7')
         X = 2 * tf.random.uniform((), 0, 1)
         for d, r, p in zip(D, R, P):
             d.assign(tf.abs(X * r - p[i]))
     
     @tf.function
     def eq_8():
-        print('Tracing eq_8...')
+        print_function_trace('eq_8')
         rand_2 = tf.random.uniform((), 0, 1)
         rand_3 = tf.random.uniform((), 0, 1)
         for p, r in zip(P, R):
@@ -105,7 +105,7 @@ def avoa(
 
     @tf.function
     def eq_10():
-        print('Tracing eq_10...')
+        print_function_trace('eq_10')
         eq_7()
         rand_4 = tf.random.uniform((), 0, 1)
         for r, p, d in zip(R, P, D):
@@ -114,7 +114,7 @@ def avoa(
     
     @tf.function
     def eq_12():
-        print('Tracing eq_12...')
+        print_function_trace('eq_12')
         rand_5 = tf.random.uniform((), 0, 1)
         rand_6 = tf.random.uniform((), 0, 1)
         for s, r, p in zip(S, R, P):
@@ -123,28 +123,28 @@ def avoa(
 
     @tf.function
     def eq_13():
-        print('Tracing eq_13...')
+        print_function_trace('eq_13')
         eq_12()
         for p, r, s in zip(P, R, S):
             p[i].assign(r - (s[0] + s[1]))
 
     @tf.function
     def eq_15():
-        print('Tracing eq_15...')
+        print_function_trace('eq_15')
         for a, bv, p in zip(A, best_vultures, P):
             a[0].assign(bv[0] - ( (bv[0]*p[i]) / (bv[0]-tf.pow(p[i],2)) ) * F)
             a[1].assign(bv[1] - ( (bv[1]*p[i]) / (bv[1]-tf.pow(p[i],2)) ) * F)
 
     @tf.function
     def eq_16():
-        print('Tracing eq_16...')
+        print_function_trace('eq_16')
         eq_15()
         for p, a in zip(P, A):
             p[i].assign((a[0] + a[1]) / 2)
 
     @tf.function
     def eq_17():
-        print('Tracing eq_17...')
+        print_function_trace('eq_17')
         eq_18()
         for p, r, l in zip(P, R, Levy):
             dt = r - p[i] # eq_11
@@ -152,7 +152,7 @@ def avoa(
 
     @tf.function
     def eq_18():
-        print('Tracing eq_18...')
+        print_function_trace('eq_18')
         for l in Levy:
             u = tf.random.uniform(l.shape, 0, 1)
             v = tf.random.uniform(l.shape, 0, 1)
@@ -194,7 +194,8 @@ def avoa(
     i = tf.Variable(0, dtype=tf.int32)
 
     # Print debug information
-    print('Starting African Vultures Optimization Algorithm.')
+    algo_name = 'African Vultures Optimization Algorithm'
+    print_algo_start(algo_name)
 
     # while (stopping condition is not met) do
     while gen <= T:
@@ -210,8 +211,8 @@ def avoa(
         best_fitness.assign(tf.reduce_min(fitness_values))
 
         # Print training information
-        print('Generation: {0} Best fitness: {1}'.format(int(gen), float(best_fitness)), end='\r')
-        
+        print_training_status(int(gen), float(best_fitness))
+
         # Additional stopping condition
         if best_fitness < fitness_limit:
             break
@@ -276,7 +277,7 @@ def avoa(
 
 
     # Print debug information
-    print('\nAfrican Vultures Optimization Algorithm finished.')
+    print_algo_end(algo_name)
 
     # Update population fitness
     update_population_fitness(model_weights, model_fitness_fn, fitness_values, P, N)

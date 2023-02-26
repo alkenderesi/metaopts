@@ -3,3 +3,12 @@ from metaopts.algorithms.dgo import dgo
 from metaopts.algorithms.ga import ga
 from metaopts.algorithms.mvo import mvo
 from metaopts.algorithms.stbo import stbo
+
+
+__all__ = [
+    'avoa',
+    'dgo',
+    'ga',
+    'mvo',
+    'stbo',
+]

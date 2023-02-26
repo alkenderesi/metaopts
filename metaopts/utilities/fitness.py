@@ -1,4 +1,5 @@
 import tensorflow as tf
+from .print import print_function_trace
 
 
 def create_fitness_function(model, loss, x, y, batch_size):
@@ -34,7 +35,7 @@ def create_fitness_function(model, loss, x, y, batch_size):
     def fitness_fn():
 
         # Print debug information
-        print('Tracing fitness_fn...')
+        print_function_trace('fitness_fn')
 
         # Randomize batch
         batch_start.assign(tf.random.uniform(shape=(), minval=0, maxval=random_limit, dtype=tf.int32))
@@ -69,7 +70,7 @@ def update_individual_fitness(model_weights, model_fitness_fn, fitness_values, p
     """
 
     # Print debug information
-    print('Tracing update_individual_fitness...')
+    print_function_trace('update_individual_fitness')
 
     # Loop over weights
     for mw, p in zip(model_weights, population):
@@ -119,7 +120,7 @@ def update_population_fitness(model_weights, model_fitness_fn, fitness_values, p
     """
 
     # Print debug information
-    print('Tracing update_population_fitness...')
+    print_function_trace('update_population_fitness')
 
     # # Loop over individuals
     for i in tf.range(population_size):

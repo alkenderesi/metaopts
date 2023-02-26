@@ -1,5 +1,5 @@
 import tensorflow as tf
-from metaopts.utilities import create_population, update_population_fitness
+from metaopts.utilities import *
 
 
 def mvo(
@@ -44,30 +44,30 @@ def mvo(
 
     @tf.function
     def update_best_universe():
-        print('Tracing update_best_universe...')
+        print_function_trace('update_best_universe')
         best_index = tf.argmin(fitness_values)
         for u, bu in zip(U, best_universe):
             bu.assign(u[best_index])
 
     @tf.function
     def update_NI():
-        print('Tracing update_NI...')
+        print_function_trace('update_NI')
         reversed = tf.reduce_sum(fitness_values) / fitness_values
         NI.assign(reversed / tf.reduce_sum(reversed))
 
     @tf.function
     def update_WEP():
-        print('Tracing update_WEP...')
+        print_function_trace('update_WEP')
         WEP.assign(min_const + gen * ((max_const - min_const) / L))
 
     @tf.function
     def update_TDR():
-        print('Tracing update_TDR...')
+        print_function_trace('update_TDR')
         TDR.assign(1 - (tf.pow(gen, 1/p_const) / tf.pow(L, 1/p_const)))
 
     @tf.function
     def black_hole_white_hole_simulation():
-        print('Tracing black_hole_white_hole_simulation...')
+        print_function_trace('black_hole_white_hole_simulation')
         for u in U:
             shape = tf.shape(u)
             r1 = tf.random.uniform(shape, 0, 1, dtype=tf.float32)
@@ -80,7 +80,7 @@ def mvo(
 
     @tf.function
     def wormhole_simulation():
-        print('Tracing wormhole_simulation...')
+        print_function_trace('wormhole_simulation')
         for u, bu in zip(U, best_universe):
             shape = tf.shape(u)
             r2 = tf.random.uniform(shape, 0, 1, dtype=tf.float32)
@@ -119,7 +119,8 @@ def mvo(
     gen = tf.Variable(0, dtype=tf.float32)
 
     # Print debug information
-    print('Starting Multi-Verse Optimizer.')
+    algo_name = 'Multi-Verse Optimizer'
+    print_algo_start(algo_name)
 
     # while the end criterion is not satisfied
     while gen <= L:
@@ -135,7 +136,7 @@ def mvo(
         best_fitness.assign(tf.reduce_min(fitness_values))
 
         # Print training information
-        print('Generation: {0} Best fitness: {1}'.format(int(gen), float(best_fitness)), end='\r')
+        print_training_status(int(gen), float(best_fitness))
 
         # Additional stopping condition
         if best_fitness < fitness_limit:
@@ -154,7 +155,7 @@ def mvo(
         gen.assign_add(1)
 
     # Print debug information
-    print('\nMulti-Verse Optimizer finished.')
+    print_algo_end(algo_name)
 
     # Update fitness values and Best_universe
     update_population_fitness(model_weights, model_fitness_fn, fitness_values, U, n)

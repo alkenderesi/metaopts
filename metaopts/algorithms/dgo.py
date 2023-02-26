@@ -1,5 +1,5 @@
 import tensorflow as tf
-from metaopts.utilities import create_population, update_population_fitness
+from metaopts.utilities import *
 
 
 def dgo(
@@ -37,51 +37,51 @@ def dgo(
     
     @tf.function
     def eq_2():
-        print('Tracing eq_2...')
+        print_function_trace('eq_2')
         F_best.assign(tf.reduce_min(F))
     
     @tf.function
     def eq_3():
-        print('Tracing eq_3...')
+        print_function_trace('eq_3')
         best_index = tf.argmin(F)
         for xb, x in zip(X_best, X):
             xb.assign(x[best_index])
 
     @tf.function
     def eq_4():
-        print('Tracing eq_4...')
+        print_function_trace('eq_4')
         F_worst.assign(tf.reduce_max(F))
     
     @tf.function
     def eq_5():
-        print('Tracing eq_5...')
+        print_function_trace('eq_5')
         worst_index = tf.argmax(F)
         for xw, x in zip(X_worst, X):
             xw.assign(x[worst_index])
     
     @tf.function
     def eq_6():
-        print('Tracing eq_6...')
+        print_function_trace('eq_6')
         Fn.assign(tf.abs((F - F_worst) / tf.reduce_sum(F - F_worst)))
     
     @tf.function
     def eq_7():
-        print('Tracing eq_7...')
+        print_function_trace('eq_7')
         P.assign(tf.abs(Fn / tf.reduce_max(Fn)))
     
     @tf.function
     def eq_8():
-        print('Tracing eq_8...')
+        print_function_trace('eq_8')
         C.assign(tf.cast(tf.round(82 * (1 - P)), dtype=tf.int32))
     
     @tf.function
     def eq_11():
-        print('Tracing eq_11...')
+        print_function_trace('eq_11')
         Sn.assign(tf.cast(tf.reduce_sum(S, axis=1) / 180, dtype=tf.float32))
     
     @tf.function
     def eq_12():
-        print('Tracing eq_12...')
+        print_function_trace('eq_12')
         for x, xb in zip(X, X_best):
             rand = tf.random.uniform(x.shape, 0, 1, dtype=tf.float32)
             Sn_shape = tf.concat([[N], tf.ones(tf.rank(x)-1, dtype=tf.int32)], axis=0)
@@ -89,7 +89,7 @@ def dgo(
 
     @tf.function
     def simulate_throws():
-        print('Tracing simulate_throws...')
+        print_function_trace('simulate_throws')
         rand = tf.random.uniform((N, throw_count), 0, 1, dtype=tf.float32)
         for i in tf.range(N):
             for j in tf.range(throw_count):
@@ -175,13 +175,14 @@ def dgo(
     gen = tf.Variable(0, dtype=tf.float32)
 
     # Print debug information
-    print('Starting Darts Game Optimizer.')
+    algo_name = 'Darts Game Optimizer'
+    print_algo_start(algo_name)
 
     # Checking the stop conditions
     while best_fitness > fitness_limit and gen <= generation_limit:
         
         # Print training information
-        print('Generation: {0} Best fitness: {1}'.format(int(gen), float(best_fitness)), end='\r')
+        print_training_status(int(gen), float(best_fitness))
 
         # Updating Fbest, Xbest, Fworst, and Xworst using (2) to (5)
         eq_2()
@@ -208,7 +209,7 @@ def dgo(
         gen.assign_add(1)
 
     # Print debug information
-    print('\nDarts Game Optimizer finished.')
+    print_algo_end(algo_name)
 
     # Apply best solution to the model
     for mw, xb in zip(model_weights, X_best):

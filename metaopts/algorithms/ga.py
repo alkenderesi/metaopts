@@ -1,5 +1,5 @@
 import tensorflow as tf
-from metaopts.utilities import create_population, sort_population, update_population_fitness
+from metaopts.utilities import *
 
 
 def ga(
@@ -38,7 +38,7 @@ def ga(
     def roulette_wheel_selection():
 
         # Print debug information
-        print('Tracing roulette_wheel_selection...')
+        print_function_trace('roulette_wheel_selection')
 
         # Get best fitness values
         elite = fitness_values[:elite_size]
@@ -62,7 +62,7 @@ def ga(
     def multipoint_crossover():
 
         # Print debug information
-        print('Tracing multipoint_crossover...')
+        print_function_trace('multipoint_crossover')
 
         # Loop over weights
         for p in population:
@@ -84,7 +84,7 @@ def ga(
     def gaussian_mutation():
 
         # Print debug information
-        print('Tracing gaussian_mutation...')
+        print_function_trace('gaussian_mutation')
 
         # Loop over weights
         for p in population:
@@ -119,7 +119,8 @@ def ga(
     sort_population(population, fitness_values)
 
     # Print debug information
-    print('Starting Genetic Algorithm.')
+    algo_name = 'Genetic Algorithm'
+    print_algo_start(algo_name)
 
     # Initialize generation counter
     gen = 0
@@ -140,10 +141,10 @@ def ga(
         sort_population(population, fitness_values)
 
         # Print training information
-        print('Generation: {0} Best fitness: {1}'.format(int(gen), float(fitness_values[0])), end='\r')
+        print_training_status(int(gen), float(fitness_values[0]))
 
     # Print debug information
-    print('\nGenetic Algorithm finished.')
+    print_algo_end(algo_name)
 
     # Apply best solution to the model
     for mw, p in zip(model_weights, population):

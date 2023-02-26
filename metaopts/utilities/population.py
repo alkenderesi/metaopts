@@ -1,4 +1,5 @@
 import tensorflow as tf
+from .print import print_function_trace
 
 
 def create_population(model_weights, population_size, transfer_learning=False, deviation=0.1):
@@ -31,7 +32,7 @@ def sort_population(population, fitness_values):
     """
 
     # Print debug information
-    print('Tracing sort_population...')
+    print_function_trace('sort_population')
 
     # Sort fitness values in ascending order
     order = tf.argsort(fitness_values)
