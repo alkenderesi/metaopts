@@ -279,12 +279,5 @@ def avoa(
     # Print debug information
     print_algo_end(algo_name)
 
-    # Update population fitness
-    update_population_fitness(model_weights, model_fitness_fn, fitness_values, P, N)
-
     # Apply best solution to the model
-    for mv, p in zip(model_weights, P):
-        mv.assign(p[tf.argmin(fitness_values)])
-
-    # Print debug information
-    print('Best solution applied to model.')
+    apply_best_solution(model_weights, model_fitness_fn, fitness_values, P, N)

@@ -147,8 +147,4 @@ def ga(
     print_algo_end(algo_name)
 
     # Apply best solution to the model
-    for mw, p in zip(model_weights, population):
-        mw.assign(p[0])
-
-    # Print debug information
-    print('Best solution applied to model.')
+    apply_best_solution(model_weights, model_fitness_fn, fitness_values, population, population_size)

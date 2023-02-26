@@ -157,13 +157,5 @@ def mvo(
     # Print debug information
     print_algo_end(algo_name)
 
-    # Update fitness values and Best_universe
-    update_population_fitness(model_weights, model_fitness_fn, fitness_values, U, n)
-    update_best_universe()
-
     # Apply best solution to the model
-    for mw, bu in zip(model_weights, best_universe):
-        mw.assign(bu)
-
-    # Print debug information
-    print('Best solution applied to model.')
+    apply_best_solution(model_weights, model_fitness_fn, fitness_values, U, n)

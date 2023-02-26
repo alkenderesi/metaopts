@@ -212,8 +212,4 @@ def dgo(
     print_algo_end(algo_name)
 
     # Apply best solution to the model
-    for mw, xb in zip(model_weights, X_best):
-        mw.assign(xb)
-
-    # Print debug information
-    print('Best solution applied to model.')
+    apply_best_solution(model_weights, model_fitness_fn, F, X, N)

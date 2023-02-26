@@ -165,8 +165,4 @@ def stbo(
     print_algo_end(algo_name)
 
     # Apply best solution to the model
-    for mw, x in zip(model_weights, X):
-        mw.assign(x[tf.argmin(F)])
-
-    # Print debug information
-    print('Best solution applied to model.')
+    apply_best_solution(model_weights, model_fitness_fn, F, X, N)
