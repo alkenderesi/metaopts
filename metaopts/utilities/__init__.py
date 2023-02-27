@@ -8,6 +8,7 @@ from metaopts.utilities.print import print_function_trace
 from metaopts.utilities.print import print_algo_start
 from metaopts.utilities.print import print_algo_end
 from metaopts.utilities.print import print_training_status
+from metaopts.utilities.log import log_fitness_value
 
 
 __all__ = [
@@ -21,4 +22,5 @@ __all__ = [
     'print_algo_start',
     'print_algo_end',
     'print_training_status',
+    'log_fitness_value',
 ]

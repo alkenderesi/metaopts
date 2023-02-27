@@ -9,11 +9,12 @@ def mvo(
         fitness_limit,
         population_size,
         transfer_learning=False,
+        log_fitness=False,
         min=0.2,
         max=1.0,
         p=6.0,
         lower_bound=-1.0,
-        upper_bound=1.0,
+        upper_bound=1.0
     ):
     """
     Implementation of the Multi-Verse Optimizer algorithm.
@@ -135,6 +136,10 @@ def mvo(
         # Update best fitness
         best_fitness.assign(tf.reduce_min(fitness_values))
 
+        # Log fitness
+        if log_fitness:
+            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name))
+
         # Print training information
         print_training_status(int(gen), float(best_fitness))
 
@@ -159,3 +164,7 @@ def mvo(
 
     # Apply best solution to the model
     apply_best_solution(model_weights, model_fitness_fn, fitness_values, U, n)
+
+    # Log fitness
+    if log_fitness:
+        log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), True)

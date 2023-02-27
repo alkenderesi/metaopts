@@ -10,6 +10,7 @@ def ga(
         population_size,
         elite_size,
         transfer_learning=False,
+        log_fitness=False,
         learning_rate=0.1,
         crossover_rate=0.2,
         mutation_rate=0.2
@@ -140,6 +141,10 @@ def ga(
         update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size)
         sort_population(population, fitness_values)
 
+        # Log fitness
+        if log_fitness:
+            log_fitness_value(float(fitness_values[0]), '{0} fitness'.format(algo_name))
+
         # Print training information
         print_training_status(int(gen), float(fitness_values[0]))
 
@@ -148,3 +153,7 @@ def ga(
 
     # Apply best solution to the model
     apply_best_solution(model_weights, model_fitness_fn, fitness_values, population, population_size)
+
+    # Log fitness
+    if log_fitness:
+        log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), True)

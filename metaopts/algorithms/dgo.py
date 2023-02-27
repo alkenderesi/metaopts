@@ -9,7 +9,8 @@ def dgo(
         fitness_limit,
         population_size,
         transfer_learning=False,
-        throw_count=3,
+        log_fitness=False,
+        throw_count=3
     ):
     """
     Implementation of the Darts Game Optimizer algorithm.
@@ -206,6 +207,10 @@ def dgo(
         update_population_fitness(model_weights, model_fitness_fn, F, X, N)
         best_fitness.assign(tf.reduce_min(F))
 
+        # Log fitness
+        if log_fitness:
+            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name))
+
         gen.assign_add(1)
 
     # Print debug information
@@ -213,3 +218,7 @@ def dgo(
 
     # Apply best solution to the model
     apply_best_solution(model_weights, model_fitness_fn, F, X, N)
+
+    # Log fitness
+    if log_fitness:
+        log_fitness_value(float(tf.reduce_min(F)), '{0} fitness'.format(algo_name), True)

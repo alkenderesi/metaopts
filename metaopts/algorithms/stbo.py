@@ -9,8 +9,9 @@ def stbo(
         fitness_limit,
         population_size,
         transfer_learning=False,
+        log_fitness=False,
         lb=-1.0,
-        ub=1.0,
+        ub=1.0
     ):
     """
     Implementation of the Sewing Training-Based Optimization algorithm.
@@ -155,6 +156,10 @@ def stbo(
         # Update the best candidate solution
         best_fitness.assign(tf.reduce_min(F))
 
+        # Log fitness
+        if log_fitness:
+            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name))
+
         # Print training information
         print_training_status(int(gen), float(best_fitness))
 
@@ -166,3 +171,7 @@ def stbo(
 
     # Apply best solution to the model
     apply_best_solution(model_weights, model_fitness_fn, F, X, N)
+
+    # Log fitness
+    if log_fitness:
+        log_fitness_value(float(tf.reduce_min(F)), '{0} fitness'.format(algo_name), True)

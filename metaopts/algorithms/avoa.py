@@ -10,6 +10,7 @@ def avoa(
         fitness_limit,
         population_size,
         transfer_learning=False,
+        log_fitness=False,
         L1=0.8,
         L2=0.2,
         w=2.5,
@@ -210,6 +211,10 @@ def avoa(
         # Update best fitness
         best_fitness.assign(tf.reduce_min(fitness_values))
 
+        # Log fitness
+        if log_fitness:
+            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name))
+
         # Print training information
         print_training_status(int(gen), float(best_fitness))
 
@@ -275,9 +280,11 @@ def avoa(
 
         gen.assign_add(1)
 
-
     # Print debug information
     print_algo_end(algo_name)
 
     # Apply best solution to the model
     apply_best_solution(model_weights, model_fitness_fn, fitness_values, P, N)
+
+    # Log fitness
+    log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), True)
