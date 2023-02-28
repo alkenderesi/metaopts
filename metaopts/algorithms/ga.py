@@ -146,7 +146,7 @@ def ga(
             log_fitness_value(float(fitness_values[0]), '{0} fitness'.format(algo_name))
 
         # Print training information
-        print_training_status(int(gen), float(fitness_values[0]))
+        print_training_status(int(gen), int(generation_limit), float(fitness_values[0]))
 
     # Print debug information
     print_algo_end(algo_name)

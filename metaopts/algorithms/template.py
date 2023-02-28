@@ -71,6 +71,9 @@ def metaheuristic_template(
         # You can update the fitness values of the whole population using update_population_fitness
         update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size)
 
+        # You can print the best fitness value found in each generation using print_training_status
+        print_training_status(int(gen), int(generation_limit), float(tf.reduce_min(fitness_values)))
+
         # You can log the changes of the best fitness value found in each generation using log_fitness_value
         if log_fitness:
             log_fitness_value(gen, tf.reduce_min(fitness_values))

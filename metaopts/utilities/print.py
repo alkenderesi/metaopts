@@ -31,13 +31,14 @@ def print_algo_end(algorithm_name):
     print('\n{0} finished.'.format(algorithm_name))
 
 
-def print_training_status(generation, best_fitness_value):
+def print_training_status(generation, generation_limit, best_fitness_value):
     """
     Print debug information about the current status of the training process.
 
     Args:
         generation: `int` - Current generation.
+        generation_limit: `int` - Maximum number of generations.
         best_fitness_value: `float` - Best fitness value of the current generation.
     """
 
-    print('Generation: {0} Best fitness: {1}'.format(generation, best_fitness_value), end='\r')
+    print('Generation: {0}/{1} Best fitness: {2}'.format(generation, generation_limit, best_fitness_value), end='\r')

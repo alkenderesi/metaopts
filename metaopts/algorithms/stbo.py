@@ -161,7 +161,7 @@ def stbo(
             log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name))
 
         # Print training information
-        print_training_status(int(gen), float(best_fitness))
+        print_training_status(int(gen), int(T), float(best_fitness))
 
         gen.assign_add(1)
 

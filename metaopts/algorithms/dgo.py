@@ -183,7 +183,7 @@ def dgo(
     while best_fitness > fitness_limit and gen <= generation_limit:
         
         # Print training information
-        print_training_status(int(gen), float(best_fitness))
+        print_training_status(int(gen), int(generation_limit), float(best_fitness))
 
         # Updating Fbest, Xbest, Fworst, and Xworst using (2) to (5)
         eq_2()
