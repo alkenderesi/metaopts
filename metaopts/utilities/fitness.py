@@ -75,8 +75,8 @@ def update_individual_fitness(model_weights, model_fitness_fn, fitness_values, p
     # Loop over weights
     for mw, p in zip(model_weights, population):
 
-        # Replace invalid weights with zeros
-        p[individual_index].assign(tf.where(tf.math.is_finite(p[individual_index]), p[individual_index], tf.zeros_like(p[individual_index])))
+        # Replace invalid weights with random values
+        p[individual_index].assign(tf.where(tf.math.is_finite(p[individual_index]), p[individual_index], tf.random.normal(p[individual_index].shape, 0, deviation)))
 
         # Assign test weights to model
         mw.assign(p[individual_index])
