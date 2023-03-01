@@ -10,6 +10,7 @@ def stbo(
         population_size,
         transfer_learning=False,
         fitness_log_frequency=-1,
+        best_individual_save_frequency=-1,
         lb=-1.0,
         ub=1.0
     ):
@@ -24,6 +25,7 @@ def stbo(
         population_size: `int` - Number of individuals in the population.
         transfer_learning: `bool` - Whether to use transfer learning.
         fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
+        best_individual_save_frequency: `int` - Frequency of saving the best individual to a pickle file. If set to -1, no saving is performed.
         lb: `float` - Lower bound of the search space.
         ub: `float` - Upper bound of the search space.
     
@@ -161,6 +163,10 @@ def stbo(
         if fitness_log_frequency > 0:
             log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
+        # Save best individual
+        if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
+            save_individual(X, tf.argmin(F), '{0} weights'.format(algo_name))
+
         # Print training information
         print_training_status(int(gen), int(T), float(best_fitness))
 
@@ -176,3 +182,7 @@ def stbo(
     # Log fitness
     if fitness_log_frequency > 0:
         log_fitness_value(float(tf.reduce_min(F)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)
+
+    # Save best individual
+    if best_individual_save_frequency > 0:
+        save_individual(X, tf.argmin(F), '{0} weights'.format(algo_name))

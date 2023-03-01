@@ -11,6 +11,7 @@ def avoa(
         population_size,
         transfer_learning=False,
         fitness_log_frequency=-1,
+        best_individual_save_frequency=-1,
         L1=0.8,
         L2=0.2,
         w=2.5,
@@ -32,6 +33,7 @@ def avoa(
         population_size: `int` - Number of vultures in the population.
         transfer_learning: `bool` - Whether to use transfer learning.
         fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
+        best_individual_save_frequency: `int` - Frequency of saving the best individual to a pickle file. If set to -1, no saving is performed.
         L1: `float` - Probability of choosing the best vulture.
         L2: `float` - Probability of choosing the second best vulture.
         w: `float` - Parameter w in in equation (3).
@@ -216,6 +218,10 @@ def avoa(
         if fitness_log_frequency > 0:
             log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
+        # Save best individual
+        if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
+            save_individual(P, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
+
         # Print training information
         print_training_status(int(gen), int(T), float(best_fitness))
 
@@ -290,3 +296,7 @@ def avoa(
     # Log fitness
     if fitness_log_frequency > 0:
         log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)
+
+    # Save best individual
+    if best_individual_save_frequency > 0:
+        save_individual(P, tf.argmin(fitness_values), '{0} weights'.format(algo_name))

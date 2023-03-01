@@ -10,6 +10,7 @@ def mvo(
         population_size,
         transfer_learning=False,
         fitness_log_frequency=-1,
+        best_individual_save_frequency=-1,
         min=0.2,
         max=1.0,
         p=6.0,
@@ -27,6 +28,7 @@ def mvo(
         population_size: `int` - Number of individuals in the population.
         transfer_learning: `bool` - Whether to use transfer learning.
         fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
+        best_individual_save_frequency: `int` - Frequency of saving the best individual to a pickle file. If set to -1, no saving is performed.
         min: `float` - Minimum value in WEP calculation.
         max: `float` - Maximum value in WEP calculation.
         p: `float` - Exploitation accuracy in TDR calculation.
@@ -141,6 +143,10 @@ def mvo(
         if fitness_log_frequency > 0:
             log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
+        # Save best individual
+        if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
+            save_individual(U, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
+
         # Print training information
         print_training_status(int(gen), int(L), float(best_fitness))
 
@@ -169,3 +175,7 @@ def mvo(
     # Log fitness
     if fitness_log_frequency > 0:
         log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)
+
+    # Save best individual
+    if best_individual_save_frequency > 0:
+        save_individual(U, tf.argmin(fitness_values), '{0} weights'.format(algo_name))

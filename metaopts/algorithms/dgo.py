@@ -10,6 +10,7 @@ def dgo(
         population_size,
         transfer_learning=False,
         fitness_log_frequency=-1,
+        best_individual_save_frequency=-1,
         throw_count=3
     ):
     """
@@ -23,6 +24,7 @@ def dgo(
         population_size: `int` - Number of individuals in the population.
         transfer_learning: `bool` - Whether to use transfer learning.
         fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
+        best_individual_save_frequency: `int` - Frequency of saving the best individual to a pickle file. If set to -1, no saving is performed.
         throw_count: `int` - Number of throws per each player.
     
     Notes:
@@ -212,6 +214,10 @@ def dgo(
         if fitness_log_frequency > 0:
             log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
+        # Save best individual
+        if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
+            save_individual(P, tf.argmin(F), '{0} weights'.format(algo_name))
+
         gen.assign_add(1)
 
     # Print debug information
@@ -223,3 +229,7 @@ def dgo(
     # Log fitness
     if fitness_log_frequency > 0:
         log_fitness_value(float(tf.reduce_min(F)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)
+
+    # Save best individual
+    if best_individual_save_frequency > 0:
+        save_individual(P, tf.argmin(F), '{0} weights'.format(algo_name))

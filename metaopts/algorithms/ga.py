@@ -11,6 +11,7 @@ def ga(
         elite_size,
         transfer_learning=False,
         fitness_log_frequency=-1,
+        best_individual_save_frequency=-1,
         learning_rate=0.1,
         crossover_rate=0.2,
         mutation_rate=0.2
@@ -27,6 +28,7 @@ def ga(
         elite_size: `int` - Number of elite individuals.
         transfer_learning: `bool` - Whether to use transfer learning.
         fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
+        best_individual_save_frequency: `int` - Frequency of saving the best individual to a pickle file. If set to -1, no saving is performed.
         learning_rate: `float` - Learning rate.
         crossover_rate: `float` - Crossover probability.
         mutation_rate: `float` - Mutation probability.
@@ -146,6 +148,10 @@ def ga(
         if fitness_log_frequency > 0:
             log_fitness_value(float(fitness_values[0]), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
+        # Save best individual
+        if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
+            save_individual(population, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
+
         # Print training information
         print_training_status(int(gen), int(generation_limit), float(fitness_values[0]))
 
@@ -158,3 +164,7 @@ def ga(
     # Log fitness
     if fitness_log_frequency > 0:
         log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)
+
+    # Save best individual
+    if best_individual_save_frequency > 0:
+        save_individual(population, tf.argmin(fitness_values), '{0} weights'.format(algo_name))

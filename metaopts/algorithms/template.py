@@ -9,7 +9,8 @@ def metaheuristic_template(
         fitness_limit,
         population_size,
         transfer_learning=False,
-        fitness_log_frequency=-1
+        fitness_log_frequency=-1,
+        best_individual_save_frequency=-1
     ):
     """
     This is a recommendation template for implementing a metaheuristic algorithm.
@@ -24,6 +25,7 @@ def metaheuristic_template(
         population_size: `int` - Number of vultures in the population.
         transfer_learning: `bool` - Whether to use transfer learning.
         fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
+        best_individual_save_frequency: `int` - Frequency of saving the best individual to a pickle file. If set to -1, no saving is performed.
     
     Notes:
 
@@ -78,6 +80,10 @@ def metaheuristic_template(
         # You can log the changes of the best fitness value found in each generation using log_fitness_value
         if fitness_log_frequency > 0:
             log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency)
+
+        # You can save the best individual in each generation using save_individual
+        if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
+            save_individual(population, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
 
         # Increment the generation counter
         gen.assign_add(1)
