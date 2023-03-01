@@ -9,7 +9,7 @@ def dgo(
         fitness_limit,
         population_size,
         transfer_learning=False,
-        log_fitness=False,
+        fitness_log_frequency=-1,
         throw_count=3
     ):
     """
@@ -22,6 +22,7 @@ def dgo(
         fitness_limit: `float` - Fitness value threshold.
         population_size: `int` - Number of individuals in the population.
         transfer_learning: `bool` - Whether to use transfer learning.
+        fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
         throw_count: `int` - Number of throws per each player.
     
     Notes:
@@ -208,8 +209,8 @@ def dgo(
         best_fitness.assign(tf.reduce_min(F))
 
         # Log fitness
-        if log_fitness:
-            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name))
+        if fitness_log_frequency > 0:
+            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
         gen.assign_add(1)
 
@@ -220,5 +221,5 @@ def dgo(
     apply_best_solution(model_weights, model_fitness_fn, F, X, N)
 
     # Log fitness
-    if log_fitness:
-        log_fitness_value(float(tf.reduce_min(F)), '{0} fitness'.format(algo_name), True)
+    if fitness_log_frequency > 0:
+        log_fitness_value(float(tf.reduce_min(F)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)

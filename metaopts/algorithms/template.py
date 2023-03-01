@@ -9,7 +9,7 @@ def metaheuristic_template(
         fitness_limit,
         population_size,
         transfer_learning=False,
-        log_fitness=False
+        fitness_log_frequency=-1
     ):
     """
     This is a recommendation template for implementing a metaheuristic algorithm.
@@ -23,6 +23,7 @@ def metaheuristic_template(
         fitness_limit: `float` - Fitness value threshold.
         population_size: `int` - Number of vultures in the population.
         transfer_learning: `bool` - Whether to use transfer learning.
+        fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
     
     Notes:
 
@@ -75,8 +76,8 @@ def metaheuristic_template(
         print_training_status(int(gen), int(generation_limit), float(tf.reduce_min(fitness_values)))
 
         # You can log the changes of the best fitness value found in each generation using log_fitness_value
-        if log_fitness:
-            log_fitness_value(gen, tf.reduce_min(fitness_values))
+        if fitness_log_frequency > 0:
+            log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
         # Increment the generation counter
         gen.assign_add(1)

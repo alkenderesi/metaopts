@@ -9,7 +9,7 @@ def mvo(
         fitness_limit,
         population_size,
         transfer_learning=False,
-        log_fitness=False,
+        fitness_log_frequency=-1,
         min=0.2,
         max=1.0,
         p=6.0,
@@ -26,6 +26,7 @@ def mvo(
         fitness_limit: `float` - Fitness value threshold.
         population_size: `int` - Number of individuals in the population.
         transfer_learning: `bool` - Whether to use transfer learning.
+        fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
         min: `float` - Minimum value in WEP calculation.
         max: `float` - Maximum value in WEP calculation.
         p: `float` - Exploitation accuracy in TDR calculation.
@@ -137,8 +138,8 @@ def mvo(
         best_fitness.assign(tf.reduce_min(fitness_values))
 
         # Log fitness
-        if log_fitness:
-            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name))
+        if fitness_log_frequency > 0:
+            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
         # Print training information
         print_training_status(int(gen), int(L), float(best_fitness))
@@ -166,5 +167,5 @@ def mvo(
     apply_best_solution(model_weights, model_fitness_fn, fitness_values, U, n)
 
     # Log fitness
-    if log_fitness:
-        log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), True)
+    if fitness_log_frequency > 0:
+        log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)

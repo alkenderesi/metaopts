@@ -10,7 +10,7 @@ def avoa(
         fitness_limit,
         population_size,
         transfer_learning=False,
-        log_fitness=False,
+        fitness_log_frequency=-1,
         L1=0.8,
         L2=0.2,
         w=2.5,
@@ -31,6 +31,7 @@ def avoa(
         fitness_limit: `float` - Fitness value threshold.
         population_size: `int` - Number of vultures in the population.
         transfer_learning: `bool` - Whether to use transfer learning.
+        fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
         L1: `float` - Probability of choosing the best vulture.
         L2: `float` - Probability of choosing the second best vulture.
         w: `float` - Parameter w in in equation (3).
@@ -212,8 +213,8 @@ def avoa(
         best_fitness.assign(tf.reduce_min(fitness_values))
 
         # Log fitness
-        if log_fitness:
-            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name))
+        if fitness_log_frequency > 0:
+            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
         # Print training information
         print_training_status(int(gen), int(T), float(best_fitness))
@@ -287,4 +288,5 @@ def avoa(
     apply_best_solution(model_weights, model_fitness_fn, fitness_values, P, N)
 
     # Log fitness
-    log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), True)
+    if fitness_log_frequency > 0:
+        log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)

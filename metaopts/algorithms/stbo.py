@@ -9,7 +9,7 @@ def stbo(
         fitness_limit,
         population_size,
         transfer_learning=False,
-        log_fitness=False,
+        fitness_log_frequency=-1,
         lb=-1.0,
         ub=1.0
     ):
@@ -23,6 +23,7 @@ def stbo(
         fitness_limit: `float` - Fitness value threshold.
         population_size: `int` - Number of individuals in the population.
         transfer_learning: `bool` - Whether to use transfer learning.
+        fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
         lb: `float` - Lower bound of the search space.
         ub: `float` - Upper bound of the search space.
     
@@ -157,8 +158,8 @@ def stbo(
         best_fitness.assign(tf.reduce_min(F))
 
         # Log fitness
-        if log_fitness:
-            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name))
+        if fitness_log_frequency > 0:
+            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
         # Print training information
         print_training_status(int(gen), int(T), float(best_fitness))
@@ -173,5 +174,5 @@ def stbo(
     apply_best_solution(model_weights, model_fitness_fn, F, X, N)
 
     # Log fitness
-    if log_fitness:
-        log_fitness_value(float(tf.reduce_min(F)), '{0} fitness'.format(algo_name), True)
+    if fitness_log_frequency > 0:
+        log_fitness_value(float(tf.reduce_min(F)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)

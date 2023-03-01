@@ -3,15 +3,15 @@ import datetime
 
 fitness_cache = []
 
-def log_fitness_value(fitness_value, log_file_name='fitness_log', force_file_write=False, max_cache_size=100):
+def log_fitness_value(fitness_value, log_file_name='fitness_log', max_cache_size=100, force_file_write=False):
     """
     Log the fitness value to a csv file.
 
     Args:
         fitness_value: `float` - Fitness value to log.
         log_file_name: `str` - Name of the log file.
-        force_file_write: `bool` - If `True`, the cache will be written to the file regardless of its size.
         max_cache_size: `int` - Maximum number of lines to cache before writing to the file.
+        force_file_write: `bool` - If `True`, the cache will be written to the file regardless of its size.
     """
 
     # Current date and time

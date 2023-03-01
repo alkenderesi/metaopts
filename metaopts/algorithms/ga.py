@@ -10,7 +10,7 @@ def ga(
         population_size,
         elite_size,
         transfer_learning=False,
-        log_fitness=False,
+        fitness_log_frequency=-1,
         learning_rate=0.1,
         crossover_rate=0.2,
         mutation_rate=0.2
@@ -26,6 +26,7 @@ def ga(
         population_size: `int` - Number of individuals in the population.
         elite_size: `int` - Number of elite individuals.
         transfer_learning: `bool` - Whether to use transfer learning.
+        fitness_log_frequency: `int` - Frequency of logging fitness values to the log file. If set to -1, no logging is performed.
         learning_rate: `float` - Learning rate.
         crossover_rate: `float` - Crossover probability.
         mutation_rate: `float` - Mutation probability.
@@ -142,8 +143,8 @@ def ga(
         sort_population(population, fitness_values)
 
         # Log fitness
-        if log_fitness:
-            log_fitness_value(float(fitness_values[0]), '{0} fitness'.format(algo_name))
+        if fitness_log_frequency > 0:
+            log_fitness_value(float(fitness_values[0]), '{0} fitness'.format(algo_name), fitness_log_frequency)
 
         # Print training information
         print_training_status(int(gen), int(generation_limit), float(fitness_values[0]))
@@ -155,5 +156,5 @@ def ga(
     apply_best_solution(model_weights, model_fitness_fn, fitness_values, population, population_size)
 
     # Log fitness
-    if log_fitness:
-        log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), True)
+    if fitness_log_frequency > 0:
+        log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)
