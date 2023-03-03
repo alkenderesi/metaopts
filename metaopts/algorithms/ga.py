@@ -1,5 +1,5 @@
 import tensorflow as tf
-from metaopts.utilities import *
+import metaopts.utilities as mou
 
 
 def ga(
@@ -42,7 +42,7 @@ def ga(
     def roulette_wheel_selection():
 
         # Print debug information
-        print_function_trace('roulette_wheel_selection')
+        mou.print_function_trace('roulette_wheel_selection')
 
         # Get best fitness values
         elite = fitness_values[:elite_size]
@@ -66,7 +66,7 @@ def ga(
     def multipoint_crossover():
 
         # Print debug information
-        print_function_trace('multipoint_crossover')
+        mou.print_function_trace('multipoint_crossover')
 
         # Loop over weights
         for p in population:
@@ -88,7 +88,7 @@ def ga(
     def gaussian_mutation():
 
         # Print debug information
-        print_function_trace('gaussian_mutation')
+        mou.print_function_trace('gaussian_mutation')
 
         # Loop over weights
         for p in population:
@@ -107,7 +107,11 @@ def ga(
 
     
     # Initialize population
-    population = create_population(model_weights, population_size, transfer_learning)
+    population = mou.create_population(
+        model_weights=model_weights,
+        population_size=population_size,
+        transfer_learning=transfer_learning
+    )
     
     # Initialize fitness value vector with zeros
     fitness_values = tf.Variable(tf.zeros(population_size, dtype=tf.float32))
@@ -119,21 +123,30 @@ def ga(
     parents = tf.Variable(tf.zeros((2, selection_size), dtype=tf.int32))
     
     # Update fitness values and sort population
-    update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size)
-    sort_population(population, fitness_values)
+    mou.update_population_fitness(
+        model_weights,
+        model_fitness_fn,
+        fitness_values,
+        population,
+        population_size
+    )
+    mou.sort_population(
+        population,
+        fitness_values
+    )
 
     # Print debug information
     algo_name = 'Genetic Algorithm'
-    print_algo_start(algo_name)
+    mou.print_algo_start(algo_name)
 
     # Initialize generation counter
-    gen = 0
+    gen = tf.Variable(0, dtype=tf.int32)
 
     # Loop until fitness limit is reached or generation limit is exceeded
     while fitness_values[0] > fitness_limit and gen < generation_limit:
         
         # Increment generation counter
-        gen += 1
+        gen.assign_add(1)
 
         # Call genetic operators
         roulette_wheel_selection()
@@ -141,30 +154,67 @@ def ga(
         gaussian_mutation()
 
         # Update fitness values and sort population
-        update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size)
-        sort_population(population, fitness_values)
+        mou.update_population_fitness(
+            model_weights,
+            model_fitness_fn,
+            fitness_values,
+            population,
+            population_size
+        )
+        mou.sort_population(
+            population,
+            fitness_values
+        )
 
         # Log fitness
         if fitness_log_frequency > 0:
-            log_fitness_value(float(fitness_values[0]), '{0} fitness'.format(algo_name), fitness_log_frequency)
+            mou.log_fitness_value(
+                fitness_value=float(fitness_values[0]),
+                log_file_name='{0} fitness'.format(algo_name),
+                max_cache_size=fitness_log_frequency
+            )
 
         # Save best individual
         if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
-            save_individual(population, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
+            mou.save_individual(
+                population=population,
+                individual_index=tf.argmin(fitness_values),
+                file_path='{0} weights'.format(algo_name)
+            )
 
         # Print training information
-        print_training_status(int(gen), int(generation_limit), float(fitness_values[0]))
+        mou.print_training_status(
+            generation=int(gen),
+            generation_limit=int(generation_limit),
+            best_fitness_value=float(fitness_values[0])
+        )
+
 
     # Print debug information
-    print_algo_end(algo_name)
+    mou.print_algo_end(algo_name)
 
     # Apply best solution to the model
-    apply_best_solution(model_weights, model_fitness_fn, fitness_values, population, population_size)
+    mou.apply_best_solution(
+        model_weights,
+        model_fitness_fn,
+        fitness_values,
+        population,
+        population_size
+    )
 
     # Log fitness
     if fitness_log_frequency > 0:
-        log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)
+        mou.log_fitness_value(
+            fitness_value=float(fitness_values[0]),
+            log_file_name='{0} fitness'.format(algo_name),
+            max_cache_size=fitness_log_frequency,
+            force_file_write=True
+        )
 
     # Save best individual
     if best_individual_save_frequency > 0:
-        save_individual(population, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
+        mou.save_individual(
+            population=population,
+            individual_index=tf.argmin(fitness_values),
+            file_path='{0} weights'.format(algo_name)
+        )

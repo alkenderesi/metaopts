@@ -1,5 +1,5 @@
 import tensorflow as tf
-from metaopts.utilities import *
+import metaopts.utilities as mou
 
 
 def stbo(
@@ -42,15 +42,15 @@ def stbo(
 
     def eq_2():
         if transfer_learning:
-            return create_population(model_weights, N, True)
-        return [tf.Variable(lb + tf.random.uniform((N,) + weights.shape, 0, 1) * (ub - lb)) for weights in model_weights]
+            return mou.create_population(model_weights, N, True)
+        return [tf.Variable(lb + tf.random.uniform((N,) + weights.shape, 0, 1)*(ub-lb)) for weights in model_weights]
 
     def eq_3():
         return tf.Variable(tf.zeros(N, dtype=tf.float32))
 
     @tf.function
     def eq_4(index):
-        print_function_trace('eq_4')
+        mou.print_function_trace('eq_4')
         CSI = tf.cast(tf.reshape(tf.where(F < F[index]), (-1,)), dtype=tf.int32)
         if tf.equal(tf.size(CSI), 0):
             return tf.expand_dims(index, 0)
@@ -58,20 +58,20 @@ def stbo(
     
     @tf.function
     def eq_5():
-        print_function_trace('eq_5')
+        mou.print_function_trace('eq_5')
         for x, xp in zip(X, XP):
             shape = tf.shape(x)
             r = tf.random.uniform(shape, 0, 1, dtype=tf.float32)
             I = tf.cast(tf.random.uniform(shape, 1, 3, dtype=tf.int32), dtype=tf.float32)
-            xp.assign(x + r * (tf.gather(x, SI) - I * x))
+            xp.assign(x + r*(tf.gather(x, SI) - I*x))
 
     @tf.function
     def eq_7_and_8():
-        print_function_trace('eq_7_and_8')
+        mou.print_function_trace('eq_7_and_8')
         for x, xp in zip(X, XP):
             shape = tf.shape(x)
             m = tf.cast(tf.size(x), dtype=tf.float32)
-            ms = tf.cast(tf.round(1 + gen / (2 * T) * m), dtype=tf.int32)
+            ms = tf.cast(tf.round(1 + gen/(2*T)*m), dtype=tf.int32)
             SDi = tf.random.shuffle(tf.range(m, dtype=tf.int32))[:ms]
             x_flat = tf.reshape(x, (-1,))
             instructors_flat = tf.reshape(tf.gather(x, SI), (-1,))
@@ -80,25 +80,25 @@ def stbo(
     
     @tf.function
     def eq_10():
-        print_function_trace('eq_10')
+        mou.print_function_trace('eq_10')
         for x, xp in zip(X, XP):
             r = tf.random.uniform(x.shape, 0, 1, dtype=tf.float32)
-            xp.assign(tf.clip_by_value(x + (lb + r * (ub - lb)) / gen, lb, ub))
+            xp.assign(tf.clip_by_value(x + (lb + r*(ub-lb))/gen, lb, ub))
 
     @tf.function
     def update_improved_positions():
-        print_function_trace('update_improved_positions')
-        update_population_fitness(model_weights, model_fitness_fn, F, X, N)
-        update_population_fitness(model_weights, model_fitness_fn, FP, XP, N)
+        mou.print_function_trace('update_improved_positions')
+        mou.update_population_fitness(model_weights, model_fitness_fn, F, X, N)
+        mou.update_population_fitness(model_weights, model_fitness_fn, FP, XP, N)
         improved_positions = FP < F
         for x, xp in zip(X, XP):
-            F_shape = tf.concat([[N], tf.ones(tf.rank(x)-1, dtype=tf.int32)], axis=0)
+            F_shape = tf.concat([[N], tf.ones(tf.rank(x) - 1, dtype=tf.int32)], axis=0)
             x.assign(tf.where(tf.reshape(improved_positions, F_shape), xp, x))
         F.assign(tf.where(improved_positions, FP, F))
 
     @tf.function
     def update_SI():
-        print_function_trace('update_SI')
+        mou.print_function_trace('update_SI')
         for i in tf.range(N):
             CSI = eq_4(i)
             candidate_count = tf.size(CSI)
@@ -112,7 +112,13 @@ def stbo(
     # Initialize the STBO population by (2) and create vector F of the values of the objective function by (3)
     X = eq_2()
     F = eq_3()
-    update_population_fitness(model_weights, model_fitness_fn, F, X, N)
+    mou.update_population_fitness(
+        model_weights=model_weights,
+        model_fitness_fn=model_fitness_fn,
+        fitness_values=F,
+        population=X,
+        population_size=N
+    )
 
     # Initialize other pseudo-code variables
     lb = tf.constant(lb, dtype=tf.float32)
@@ -121,11 +127,11 @@ def stbo(
     XP = [tf.Variable(x) for x in X]
     FP = tf.Variable(F)
     best_fitness = tf.Variable(tf.reduce_min(F), dtype=tf.float32)
-    gen = tf.Variable(0, dtype=tf.float32)
+    gen = tf.Variable(0.0, dtype=tf.float32)
 
     # Print debug information
     algo_name = 'Sewing Training-Based Optimization'
-    print_algo_start(algo_name)
+    mou.print_algo_start(algo_name)
 
     # For t = 1 to T
     while best_fitness > fitness_limit and gen <= T:
@@ -161,28 +167,55 @@ def stbo(
 
         # Log fitness
         if fitness_log_frequency > 0:
-            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
+            mou.log_fitness_value(
+                fitness_value=float(best_fitness),
+                log_file_name='{0} fitness'.format(algo_name),
+                max_cache_size=fitness_log_frequency
+            )
 
         # Save best individual
         if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
-            save_individual(X, tf.argmin(F), '{0} weights'.format(algo_name))
+            mou.save_individual(
+                population=X,
+                individual_index=tf.argmin(F),
+                file_path='{0} weights'.format(algo_name)
+            )
 
         # Print training information
-        print_training_status(int(gen), int(T), float(best_fitness))
+        mou.print_training_status(
+            generation=int(gen),
+            generation_limit=int(T),
+            best_fitness_value=float(best_fitness)
+        )
 
         gen.assign_add(1)
 
 
     # Print debug information
-    print_algo_end(algo_name)
+    mou.print_algo_end(algo_name)
 
     # Apply best solution to the model
-    apply_best_solution(model_weights, model_fitness_fn, F, X, N)
+    mou.apply_best_solution(
+        model_weights=model_weights,
+        model_fitness_fn=model_fitness_fn,
+        fitness_values=F,
+        population=X,
+        population_size=N
+    )
 
     # Log fitness
     if fitness_log_frequency > 0:
-        log_fitness_value(float(tf.reduce_min(F)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)
+        mou.log_fitness_value(
+            fitness_value=float(best_fitness),
+            log_file_name='{0} fitness'.format(algo_name),
+            max_cache_size=fitness_log_frequency,
+            force_file_write=True
+        )
 
     # Save best individual
     if best_individual_save_frequency > 0:
-        save_individual(X, tf.argmin(F), '{0} weights'.format(algo_name))
+        mou.save_individual(
+            population=X,
+            individual_index=tf.argmin(F),
+            file_path='{0} weights'.format(algo_name)
+        )

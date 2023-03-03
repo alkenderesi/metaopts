@@ -1,5 +1,5 @@
 import tensorflow as tf
-from metaopts.utilities import *
+import metaopts.utilities as mou
 
 
 def mvo(
@@ -48,30 +48,30 @@ def mvo(
 
     @tf.function
     def update_best_universe():
-        print_function_trace('update_best_universe')
+        mou.print_function_trace('update_best_universe')
         best_index = tf.argmin(fitness_values)
         for u, bu in zip(U, best_universe):
             bu.assign(u[best_index])
 
     @tf.function
     def update_NI():
-        print_function_trace('update_NI')
+        mou.print_function_trace('update_NI')
         reversed = tf.reduce_sum(fitness_values) / fitness_values
         NI.assign(reversed / tf.reduce_sum(reversed))
 
     @tf.function
     def update_WEP():
-        print_function_trace('update_WEP')
-        WEP.assign(min_const + gen * ((max_const - min_const) / L))
+        mou.print_function_trace('update_WEP')
+        WEP.assign(min_const + gen*((max_const-min_const) / L))
 
     @tf.function
     def update_TDR():
-        print_function_trace('update_TDR')
+        mou.print_function_trace('update_TDR')
         TDR.assign(1 - (tf.pow(gen, 1/p_const) / tf.pow(L, 1/p_const)))
 
     @tf.function
     def black_hole_white_hole_simulation():
-        print_function_trace('black_hole_white_hole_simulation')
+        mou.print_function_trace('black_hole_white_hole_simulation')
         for u in U:
             shape = tf.shape(u)
             r1 = tf.random.uniform(shape, 0, 1, dtype=tf.float32)
@@ -84,14 +84,14 @@ def mvo(
 
     @tf.function
     def wormhole_simulation():
-        print_function_trace('wormhole_simulation')
+        mou.print_function_trace('wormhole_simulation')
         for u, bu in zip(U, best_universe):
             shape = tf.shape(u)
             r2 = tf.random.uniform(shape, 0, 1, dtype=tf.float32)
             r3 = tf.random.uniform(shape, 0, 1, dtype=tf.float32)
             r4 = tf.random.uniform(shape, 0, 1, dtype=tf.float32)
-            wormhole_1 = bu + TDR * (ub_const - lb_const) * r4 + lb_const
-            wormhole_2 = bu - TDR * (ub_const - lb_const) * r4 + lb_const
+            wormhole_1 = bu + TDR*(ub_const-lb_const)*r4 + lb_const
+            wormhole_2 = bu - TDR*(ub_const-lb_const)*r4 + lb_const
             wormhole_universe = tf.where(r3 < 0.5, wormhole_1, wormhole_2)
             u.assign(tf.where(r2 < WEP, wormhole_universe, u))
 
@@ -99,7 +99,11 @@ def mvo(
     n = tf.constant(population_size, dtype=tf.int32)
 
     # Create random universes (U)
-    U = create_population(model_weights, n, transfer_learning)
+    U = mou.create_population(
+        model_weights=model_weights,
+        population_size=n,
+        transfer_learning=transfer_learning
+    )
     fitness_values = tf.Variable(tf.zeros(n, dtype=tf.float32))
 
     # Initialize WEP, TDR, and Best_universe
@@ -112,25 +116,29 @@ def mvo(
 
     # Initialize other pseudo-code variables
     L = tf.constant(generation_limit, dtype=tf.float32)
-
     min_const = tf.constant(min, dtype=tf.float32)
     max_const = tf.constant(max, dtype=tf.float32)
     p_const = tf.constant(p, dtype=tf.float32)
     lb_const = tf.constant(lower_bound, dtype=tf.float32)
     ub_const = tf.constant(upper_bound, dtype=tf.float32)
-
-    best_fitness = tf.Variable(0, dtype=tf.float32)
-    gen = tf.Variable(0, dtype=tf.float32)
+    best_fitness = tf.Variable(0.0, dtype=tf.float32)
+    gen = tf.Variable(0.0, dtype=tf.float32)
 
     # Print debug information
     algo_name = 'Multi-Verse Optimizer'
-    print_algo_start(algo_name)
+    mou.print_algo_start(algo_name)
 
     # while the end criterion is not satisfied
     while gen <= L:
         
         # Evaluate the fitness of all universes
-        update_population_fitness(model_weights, model_fitness_fn, fitness_values, U, n)
+        mou.update_population_fitness(
+            model_weights=model_weights,
+            model_fitness_fn=model_fitness_fn,
+            fitness_values=fitness_values,
+            population=U,
+            population_size=n
+        )
         
         # Update Best_universe and NI
         update_best_universe()
@@ -141,14 +149,26 @@ def mvo(
 
         # Log fitness
         if fitness_log_frequency > 0:
-            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
+            mou.log_fitness_value(
+                fitness_value=float(best_fitness),
+                log_file_name='{0} fitness'.format(algo_name),
+                max_cache_size=fitness_log_frequency
+            )
 
         # Save best individual
         if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
-            save_individual(U, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
+            mou.save_individual(
+                population=U,
+                individual_index=tf.argmin(fitness_values),
+                file_path='{0} weights'.format(algo_name)
+            )
 
         # Print training information
-        print_training_status(int(gen), int(L), float(best_fitness))
+        mou.print_training_status(
+            generation=int(gen),
+            generation_limit=int(L),
+            best_fitness_value=float(best_fitness)
+        )
 
         # Additional stopping condition
         if best_fitness < fitness_limit:
@@ -166,16 +186,32 @@ def mvo(
 
         gen.assign_add(1)
 
+
     # Print debug information
-    print_algo_end(algo_name)
+    mou.print_algo_end(algo_name)
 
     # Apply best solution to the model
-    apply_best_solution(model_weights, model_fitness_fn, fitness_values, U, n)
+    mou.apply_best_solution(
+        model_weights=model_weights,
+        model_fitness_fn=model_fitness_fn,
+        fitness_values=fitness_values,
+        population=U,
+        population_size=n
+    )
 
     # Log fitness
     if fitness_log_frequency > 0:
-        log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)
+        mou.log_fitness_value(
+            fitness_value=float(tf.reduce_min(fitness_values)),
+            log_file_name='{0} fitness'.format(algo_name),
+            max_cache_size=fitness_log_frequency,
+            force_file_write=True
+        )
 
     # Save best individual
     if best_individual_save_frequency > 0:
-        save_individual(U, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
+        mou.save_individual(
+            population=U,
+            individual_index=tf.argmin(fitness_values),
+            file_path='{0} weights'.format(algo_name)
+        )

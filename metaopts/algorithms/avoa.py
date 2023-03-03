@@ -1,6 +1,7 @@
 import tensorflow as tf
+import metaopts.utilities as mou
 import math
-from metaopts.utilities import *
+from copy import deepcopy
 
 
 def avoa(
@@ -57,14 +58,14 @@ def avoa(
 
     @tf.function
     def update_best_vultures():
-        print_function_trace('update_best_vultures')
+        mou.print_function_trace('update_best_vultures')
         best_indices = tf.argsort(fitness_values)[:2]
         for bv, p in zip(best_vultures, P):
             bv.assign(tf.gather(p, best_indices))
 
     @tf.function
     def eq_1():
-        print_function_trace('eq_1')
+        mou.print_function_trace('eq_1')
         reversed = tf.reduce_sum(L) / L
         logits = tf.math.log(reversed)
         selected = tf.random.categorical([logits], 1, dtype=tf.int32)
@@ -73,52 +74,52 @@ def avoa(
 
     @tf.function
     def eq_3():
-        print_function_trace('eq_3')
+        mou.print_function_trace('eq_3')
         h = tf.random.uniform((), -2, 2)
         return h * (tf.pow(tf.sin(math.pi/2 * gen/T), w) + tf.cos(math.pi/2 * gen/T) - 1)
 
     @tf.function
     def eq_4():
-        print_function_trace('eq_4')
+        mou.print_function_trace('eq_4')
         rand_1 = tf.random.uniform((), 0, 1)
         z = tf.random.uniform((), -1, 1)
         t = eq_3()
-        F.assign((2*rand_1+1) * z * (1-gen/T) + t)
+        F.assign((2*rand_1 + 1) * z * (1 - gen/T) + t)
 
     @tf.function
     def eq_6():
-        print_function_trace('eq_6')
+        mou.print_function_trace('eq_6')
         eq_7()
         for p, r, d in zip(P, R, D):
-            p[i].assign(r - d * F)
+            p[i].assign(r - d*F)
 
     @tf.function
     def eq_7():
-        print_function_trace('eq_7')
+        mou.print_function_trace('eq_7')
         X = 2 * tf.random.uniform((), 0, 1)
         for d, r, p in zip(D, R, P):
-            d.assign(tf.abs(X * r - p[i]))
+            d.assign(tf.abs(X*r - p[i]))
     
     @tf.function
     def eq_8():
-        print_function_trace('eq_8')
+        mou.print_function_trace('eq_8')
         rand_2 = tf.random.uniform((), 0, 1)
         rand_3 = tf.random.uniform((), 0, 1)
         for p, r in zip(P, R):
-            p[i].assign(r - F + rand_2 * ((ub-lb)*rand_3+lb))
+            p[i].assign(r - F + rand_2*((ub-lb)*rand_3 + lb))
 
     @tf.function
     def eq_10():
-        print_function_trace('eq_10')
+        mou.print_function_trace('eq_10')
         eq_7()
         rand_4 = tf.random.uniform((), 0, 1)
         for r, p, d in zip(R, P, D):
             dt = r - p[i] # eq_11
-            p[i].assign(d * (F+rand_4) - dt)
+            p[i].assign(d*(F+rand_4) - dt)
     
     @tf.function
     def eq_12():
-        print_function_trace('eq_12')
+        mou.print_function_trace('eq_12')
         rand_5 = tf.random.uniform((), 0, 1)
         rand_6 = tf.random.uniform((), 0, 1)
         for s, r, p in zip(S, R, P):
@@ -127,43 +128,45 @@ def avoa(
 
     @tf.function
     def eq_13():
-        print_function_trace('eq_13')
+        mou.print_function_trace('eq_13')
         eq_12()
         for p, r, s in zip(P, R, S):
-            p[i].assign(r - (s[0] + s[1]))
+            p[i].assign(r - (s[0]+s[1]))
 
     @tf.function
     def eq_15():
-        print_function_trace('eq_15')
+        mou.print_function_trace('eq_15')
         for a, bv, p in zip(A, best_vultures, P):
-            a[0].assign(bv[0] - ( (bv[0]*p[i]) / (bv[0]-tf.pow(p[i],2)) ) * F)
-            a[1].assign(bv[1] - ( (bv[1]*p[i]) / (bv[1]-tf.pow(p[i],2)) ) * F)
+            a[0].assign(bv[0] - ((bv[0]*p[i]) / (bv[0]-tf.pow(p[i], 2))) * F)
+            a[1].assign(bv[1] - ((bv[1]*p[i]) / (bv[1]-tf.pow(p[i], 2))) * F)
 
     @tf.function
     def eq_16():
-        print_function_trace('eq_16')
+        mou.print_function_trace('eq_16')
         eq_15()
         for p, a in zip(P, A):
-            p[i].assign((a[0] + a[1]) / 2)
+            p[i].assign((a[0]+a[1]) / 2)
 
     @tf.function
     def eq_17():
-        print_function_trace('eq_17')
+        mou.print_function_trace('eq_17')
         eq_18()
         for p, r, l in zip(P, R, Levy):
             dt = r - p[i] # eq_11
-            p[i].assign(r - tf.abs(dt) * F * l)
+            p[i].assign(r - tf.abs(dt)*F*l)
 
     @tf.function
     def eq_18():
-        print_function_trace('eq_18')
+        mou.print_function_trace('eq_18')
         for l in Levy:
             u = tf.random.uniform(l.shape, 0, 1)
             v = tf.random.uniform(l.shape, 0, 1)
-            l.assign(0.01 * ( (u*sigma) / tf.pow(tf.abs(v), 1/beta) ))
+            l.assign(0.01 * ((u*sigma) / tf.pow(tf.abs(v), 1/beta)))
     
     def calculate_sigma():
-        return pow( (math.gamma(1+beta) * math.sin((math.pi*beta)/2)) / (math.gamma(1+beta*2) * beta * 2 * ((beta-1)/2)), 1/beta)
+        return pow((math.gamma(1+beta) * math.sin((math.pi*beta) / 2))
+                   / (math.gamma(1 + 2*beta) * beta * 2 * ((beta-1) / 2)),
+                   1/beta)
 
 
     # Inputs: The population size N and maximum number of iterations T
@@ -171,7 +174,11 @@ def avoa(
     T = tf.constant(generation_limit, dtype=tf.float32)
 
     # Initialize the random population Pi (i = 1, 2, ..., N)
-    P = create_population(model_weights, N, transfer_learning)
+    P = mou.create_population(
+        model_weights=model_weights,
+        population_size=N,
+        transfer_learning=transfer_learning
+    )
     fitness_values = tf.Variable(tf.zeros(N, dtype=tf.float32))
 
     # Initialize other pseudo-code variables
@@ -186,26 +193,33 @@ def avoa(
     sigma = tf.constant(calculate_sigma(), dtype=tf.float32)
 
     best_vultures = [tf.Variable(tf.zeros((2,) + weights.shape, dtype=tf.float32)) for weights in model_weights]
-    R = [tf.Variable(tf.zeros(weights.shape, dtype=tf.float32)) for weights in model_weights]
-    F = tf.Variable(0.0, dtype=tf.float32)
-    D = [tf.Variable(tf.zeros(weights.shape, dtype=tf.float32)) for weights in model_weights]
-    S = [tf.Variable(tf.zeros((2,) + weights.shape, dtype=tf.float32)) for weights in model_weights]
-    A = [tf.Variable(tf.zeros((2,) + weights.shape, dtype=tf.float32)) for weights in model_weights]
-    Levy = [tf.Variable(tf.zeros(weights.shape, dtype=tf.float32)) for weights in model_weights]
+    S = deepcopy(best_vultures)
+    A = deepcopy(best_vultures)
 
-    best_fitness = tf.Variable(0, dtype=tf.float32)
-    gen = tf.Variable(0, dtype=tf.float32)
+    R = [tf.Variable(tf.zeros(weights.shape, dtype=tf.float32)) for weights in model_weights]
+    D = deepcopy(R)
+    Levy = deepcopy(R)
+
+    F = tf.Variable(0.0, dtype=tf.float32)
+    best_fitness = tf.Variable(0.0, dtype=tf.float32)
+    gen = tf.Variable(0.0, dtype=tf.float32)
     i = tf.Variable(0, dtype=tf.int32)
 
     # Print debug information
     algo_name = 'African Vultures Optimization Algorithm'
-    print_algo_start(algo_name)
+    mou.print_algo_start(algo_name)
 
     # while (stopping condition is not met) do
     while gen <= T:
 
         # Calculate the fitness values of Vulture
-        update_population_fitness(model_weights, model_fitness_fn, fitness_values, P, N)
+        mou.update_population_fitness(
+            model_weights=model_weights,
+            model_fitness_fn=model_fitness_fn,
+            fitness_values=fitness_values,
+            population=P,
+            population_size=N
+        )
 
         # Set PBestVulture1 as the location of Vulture (First best location Best Vulture Category 1)
         # Set PBestVulture2 as the location of Vulture (Second best location Best Vulture Category 2)
@@ -216,14 +230,26 @@ def avoa(
 
         # Log fitness
         if fitness_log_frequency > 0:
-            log_fitness_value(float(best_fitness), '{0} fitness'.format(algo_name), fitness_log_frequency)
+            mou.log_fitness_value(
+                fitness_value=float(best_fitness),
+                log_file_name='{0} fitness'.format(algo_name),
+                max_cache_size=fitness_log_frequency
+            )
 
         # Save best individual
         if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
-            save_individual(P, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
+            mou.save_individual(
+                population=P,
+                individual_index=tf.argmin(fitness_values),
+                file_path='{0} weights'.format(algo_name)
+            )
 
         # Print training information
-        print_training_status(int(gen), int(T), float(best_fitness))
+        mou.print_training_status(
+            generation=int(gen),
+            generation_limit=int(T),
+            best_fitness_value=float(best_fitness)
+        )
 
         # Additional stopping condition
         if best_fitness < fitness_limit:
@@ -287,16 +313,32 @@ def avoa(
 
         gen.assign_add(1)
 
+
     # Print debug information
-    print_algo_end(algo_name)
+    mou.print_algo_end(algo_name)
 
     # Apply best solution to the model
-    apply_best_solution(model_weights, model_fitness_fn, fitness_values, P, N)
+    mou.apply_best_solution(
+        model_weights=model_weights,
+        model_fitness_fn=model_fitness_fn,
+        fitness_values=fitness_values,
+        population=P,
+        population_size=N
+    )
 
     # Log fitness
     if fitness_log_frequency > 0:
-        log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency, True)
+        mou.log_fitness_value(
+            fitness_value=float(best_fitness),
+            log_file_name='{0} fitness'.format(algo_name),
+            max_cache_size=fitness_log_frequency,
+            force_file_write=True
+        )
 
     # Save best individual
     if best_individual_save_frequency > 0:
-        save_individual(P, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
+        mou.save_individual(
+            population=P,
+            individual_index=tf.argmin(fitness_values),
+            file_path='{0} weights'.format(algo_name)
+        )

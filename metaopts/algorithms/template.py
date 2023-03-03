@@ -1,5 +1,5 @@
 import tensorflow as tf
-from metaopts.utilities import *
+import metaopts.utilities as mou
 
 
 def metaheuristic_template(
@@ -38,7 +38,7 @@ def metaheuristic_template(
     
     @tf.function
     def do_calculations():
-        print_function_trace('do_calculations')
+        mou.print_function_trace('do_calculations')
         pass
 
     def do_other_calculations():
@@ -48,7 +48,11 @@ def metaheuristic_template(
     # The population consists of multiple individuals
     # The shape of each trainable tf.Variable is expanded to match the population size
     # Keep in mind that in a tf.function you can't index the population list so you have to iterate over it (sometimes by using zip as well)
-    population = create_population(model_weights, population_size, transfer_learning)
+    population = mou.create_population(
+        model_weights,
+        population_size,
+        transfer_learning
+    )
 
     # Create fitness values as a rank-1 tensor
     fitness_values = tf.zeros(population_size, dtype=tf.float32)
@@ -58,13 +62,13 @@ def metaheuristic_template(
 
     # When the algorithm starts you can notifiy the user using print_algo_start
     algo_name = 'Metaheuristic Template'
-    print_algo_start(algo_name)
+    mou.print_algo_start(algo_name)
 
     # Initialize the generation counter
     gen = tf.Variable(0, dtype=tf.int32)
 
     # You can use a while loop to iterate over the generations
-    while gen <= generation_limit and tf.reduce_min(fitness_values) > fitness_limit:
+    while tf.reduce_min(fitness_values) > fitness_limit and gen <= generation_limit:
 
         # You can call nested functions related to your algorithm
         # Try using tf.function as often as possible to speed up the execution
@@ -72,24 +76,50 @@ def metaheuristic_template(
         do_other_calculations()
 
         # You can update the fitness values of the whole population using update_population_fitness
-        update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size)
+        # model_weights, model_fitness_fn, fitness_values, population, population_size
+        mou.update_population_fitness(
+            model_weights,
+            model_fitness_fn,
+            fitness_values,
+            population,
+            population_size
+        )
 
         # You can print the best fitness value found in each generation using print_training_status
-        print_training_status(int(gen), int(generation_limit), float(tf.reduce_min(fitness_values)))
+        mou.print_training_status(
+            generation=int(gen),
+            generation_limit=int(generation_limit),
+            best_fitness_value=float(tf.reduce_min(fitness_values))
+        )
 
         # You can log the changes of the best fitness value found in each generation using log_fitness_value
         if fitness_log_frequency > 0:
-            log_fitness_value(float(tf.reduce_min(fitness_values)), '{0} fitness'.format(algo_name), fitness_log_frequency)
+            mou.log_fitness_value(
+                fitness_value=float(tf.reduce_min(fitness_values)),
+                log_file_name='{0} fitness'.format(algo_name),
+                max_cache_size=fitness_log_frequency
+            )
 
         # You can save the best individual in each generation using save_individual
         if best_individual_save_frequency > 0 and gen % best_individual_save_frequency == 0:
-            save_individual(population, tf.argmin(fitness_values), '{0} weights'.format(algo_name))
+            mou.save_individual(
+                population=population,
+                individual_index=tf.argmin(fitness_values),
+                file_path='{0} weights'.format(algo_name)
+            )
 
         # Increment the generation counter
         gen.assign_add(1)
 
+
     # When the algorithm ends you can notifiy the user using print_algo_end
-    print_algo_end(algo_name)
+    mou.print_algo_end(algo_name)
 
     # You can apply the best individual to the model using apply_best_solution
-    apply_best_solution(model_weights, model_fitness_fn, fitness_values, population, population_size)
+    mou.apply_best_solution(
+        model_weights,
+        model_fitness_fn,
+        fitness_values,
+        population,
+        population_size
+    )
