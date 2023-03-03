@@ -16,3 +16,5 @@ __all__ = [
     'mvo',
     'stbo',
 ]
+__version__ = '0.0.1'
+__author__ = 'https://github.com/DrKarambit'
