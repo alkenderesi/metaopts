@@ -3,7 +3,12 @@ import datetime
 
 fitness_cache = []
 
-def log_fitness_value(fitness_value, log_file_name='fitness_log', max_cache_size=100, force_file_write=False):
+def log_fitness_value(
+        fitness_value,
+        log_file_name='fitness_log',
+        max_cache_size=100,
+        force_file_write=False
+    ):
     """
     Log the fitness value to a csv file.
 

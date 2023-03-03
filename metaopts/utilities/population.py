@@ -3,7 +3,12 @@ from .print import print_function_trace
 from .fitness import update_population_fitness
 
 
-def create_population(model_weights, population_size, transfer_learning=False, deviation=0.1):
+def create_population(
+        model_weights,
+        population_size,
+        transfer_learning=False,
+        deviation=0.1
+    ):
     """
     Creates a population of individuals (candidate solutions).
 
@@ -14,7 +19,7 @@ def create_population(model_weights, population_size, transfer_learning=False, d
         deviation: `float` - Standard deviation of the normal distribution used to generate random weights.
     """
 
-    if (transfer_learning):
+    if transfer_learning:
 
         # Return a population of individuals with the same weights as the model
         return [tf.Variable(tf.repeat([weights], population_size, axis=0)) for weights in model_weights]
@@ -23,7 +28,10 @@ def create_population(model_weights, population_size, transfer_learning=False, d
     return [tf.Variable(tf.repeat([tf.random.normal(weights.shape, 0, deviation)], population_size, axis=0)) for weights in model_weights]
 
 
-def sort_population(population, fitness_values):
+def sort_population(
+        population,
+        fitness_values
+    ):
     """
     Sorts the population in ascending order based on fitness values.
 
@@ -44,7 +52,13 @@ def sort_population(population, fitness_values):
         p.assign(tf.gather(p, order, axis=0))
 
 
-def apply_best_solution(model_weights, model_fitness_fn, fitness_values, population, population_size):
+def apply_best_solution(
+        model_weights,
+        model_fitness_fn,
+        fitness_values,
+        population,
+        population_size
+    ):
     """
     Applies the best solution of the population to the model.
 
@@ -57,7 +71,13 @@ def apply_best_solution(model_weights, model_fitness_fn, fitness_values, populat
     """
 
     # Update fitness values
-    update_population_fitness(model_weights, model_fitness_fn, fitness_values, population, population_size)
+    update_population_fitness(
+        model_weights,
+        model_fitness_fn,
+        fitness_values,
+        population,
+        population_size
+    )
 
     # Best solution index
     best_solution_index = tf.argmin(fitness_values)

@@ -31,7 +31,11 @@ def print_algo_end(algorithm_name):
     print('\n{0} finished.'.format(algorithm_name))
 
 
-def print_training_status(generation, generation_limit, best_fitness_value):
+def print_training_status(
+        generation,
+        generation_limit,
+        best_fitness_value
+    ):
     """
     Print debug information about the current status of the training process.
 

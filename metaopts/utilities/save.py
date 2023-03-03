@@ -1,7 +1,12 @@
 import pickle
 
 
-def save_individual(population, individual_index, file_path, file_extension = '.pickle'):
+def save_individual(
+        population,
+        individual_index,
+        file_path,
+        file_extension = '.pickle'
+    ):
     """
     Saves the individual at the specified index in the population to a file.
 
@@ -12,7 +17,7 @@ def save_individual(population, individual_index, file_path, file_extension = '.
         file_extension: `str` - File extension.
     """
 
-    if file_path[-len(file_extension):] != file_extension:
+    if not file_path.endswith(file_extension):
         file_path += file_extension
 
     individual = [p[individual_index] for p in population]
@@ -21,7 +26,10 @@ def save_individual(population, individual_index, file_path, file_extension = '.
         pickle.dump(individual, save_file)
 
 
-def load_individual(file_path, file_extension = '.pickle'):
+def load_individual(
+        file_path,
+        file_extension = '.pickle'
+    ):
     """
     Loads an individual from a file.
 
@@ -30,7 +38,7 @@ def load_individual(file_path, file_extension = '.pickle'):
         file_extension: `str` - File extension.
     """
 
-    if file_path[-len(file_extension):] != file_extension:
+    if not file_path.endswith(file_extension):
         file_path += file_extension
 
     with open(file_path, 'rb') as save_file:
