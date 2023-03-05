@@ -1,3 +1,5 @@
+"""A TensorFlow compatible library with metaheuristic optimizers."""
+
 from . import utilities
 from . import algorithms
 from .utilities.fitness import create_fitness_function

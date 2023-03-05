@@ -1,3 +1,5 @@
+"""Darts Game Optimizer."""
+
 import tensorflow as tf
 import metaopts.utilities as mou
 from copy import deepcopy

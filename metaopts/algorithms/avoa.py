@@ -1,3 +1,5 @@
+"""African Vultures Optimization Algorithm."""
+
 import tensorflow as tf
 import metaopts.utilities as mou
 import math

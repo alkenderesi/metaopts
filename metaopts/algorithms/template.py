@@ -1,3 +1,5 @@
+"""Template for implementing a metaheuristic algorithm."""
+
 import tensorflow as tf
 import metaopts.utilities as mou
 

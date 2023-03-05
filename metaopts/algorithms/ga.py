@@ -1,3 +1,5 @@
+"""Genetic Algorithm."""
+
 import tensorflow as tf
 import metaopts.utilities as mou
 

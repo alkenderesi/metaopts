@@ -1,3 +1,5 @@
+"""Multi-Verse Optimizer."""
+
 import tensorflow as tf
 import metaopts.utilities as mou
 

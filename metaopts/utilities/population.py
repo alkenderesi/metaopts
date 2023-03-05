@@ -1,3 +1,5 @@
+"""Population related utility functions."""
+
 import tensorflow as tf
 from .print import print_function_trace
 from .fitness import update_population_fitness

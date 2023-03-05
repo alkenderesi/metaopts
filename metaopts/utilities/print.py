@@ -1,3 +1,6 @@
+"""Printing related utility functions."""
+
+
 def print_function_trace(tf_function_name):
     """
     Print debug information about the tracing process of a `@tf.function`.

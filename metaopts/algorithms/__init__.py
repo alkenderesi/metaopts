@@ -1,3 +1,5 @@
+"""Algorithm module."""
+
 from metaopts.algorithms.avoa import avoa
 from metaopts.algorithms.dgo import dgo
 from metaopts.algorithms.ga import ga

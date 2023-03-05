@@ -1,3 +1,5 @@
+"""Logging related utility functions."""
+
 import datetime
 
 

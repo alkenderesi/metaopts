@@ -1,3 +1,5 @@
+"""Sewing Training-Based Optimization."""
+
 import tensorflow as tf
 import metaopts.utilities as mou
 

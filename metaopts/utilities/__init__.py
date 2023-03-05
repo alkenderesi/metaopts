@@ -1,3 +1,5 @@
+"""Utility function module."""
+
 from metaopts.utilities.fitness import create_fitness_function
 from metaopts.utilities.fitness import update_individual_fitness
 from metaopts.utilities.fitness import update_population_fitness

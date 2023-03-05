@@ -1,3 +1,5 @@
+"""Fitness related utility functions."""
+
 import tensorflow as tf
 from .print import print_function_trace
 
