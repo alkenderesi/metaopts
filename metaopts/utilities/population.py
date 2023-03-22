@@ -27,7 +27,7 @@ def create_population(
         return [tf.Variable(tf.repeat([weights], population_size, axis=0)) for weights in model_weights]
 
     # Return a population of individuals with random weights
-    return [tf.Variable(tf.repeat([tf.random.normal(weights.shape, 0, deviation)], population_size, axis=0)) for weights in model_weights]
+    return [tf.Variable(tf.random.normal((population_size,) + weights.shape, 0, deviation)) for weights in model_weights]
 
 
 def sort_population(
